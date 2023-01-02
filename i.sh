@@ -1,15 +1,5 @@
 #!/bin/bash
 set -e
-echo "
-1. register here https://www.digitalocean.com/try/free-trial-offer
-2. create a server https://cloud.digitalocean.com/droplets/new?size=s-1vcpu-512mb-10gb
-3. register a domain or subdomain and set it on server's IP address
-4. ssh root@serverIP
-5. run this script.
-
-Questions? twitter.com/ServerError403
-
-"
 read -p "Enter your domain or subdomain: " MYDOMAIN
 MYDOMAIN=$(echo "$MYDOMAIN" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
 [[ -z "$MYDOMAIN" ]] && { echo "Error: Domain URL is needed."; exit 1; }
@@ -30,7 +20,7 @@ echo -e "\n$HC+$NC Installing certbot..."
 snap install core 2>> 2.log 1>> 1.log
 snap refresh core 2>> 2.log 1>> 1.log
 snap install --classic certbot 2>> 2.log 1>> 1.log
-ln -s /snap/bin/certbot /usr/bin/certbot 2>> 2.log 1>> 1.log
+ln -s /snap/bin/certbot /usr/bin/certbot || true 2>> 2.log 1>> 1.log
 
 echo -e "\n\n$HC+$NC Issuing SSL certificate..."
 certbot certonly --standalone -d $MYDOMAIN --register-unsafely-without-email --non-interactive --agree-tos 2>> 2.log 1>> 1.log

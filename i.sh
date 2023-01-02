@@ -1,6 +1,17 @@
 #!/bin/bash
 set -e
-read -e -p "Enter your domain or subdomain: " MYDOMAIN
+FLAGFILE=running.flag
+echo ".">$FLAGFILE
+function cleanup {
+  [[ ! -f $FLAGFILE ]] && exit;
+  echo -e "\033[1;31m -- Error log: \033[0m "
+  tail -n 10 2.log
+  tail -n 5 1.log
+}
+trap cleanup EXIT
+
+echo ""
+read -e -p " [?] Enter your domain or subdomain: " MYDOMAIN
 MYDOMAIN=$(echo "$MYDOMAIN" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
 [[ -z "$MYDOMAIN" ]] && { echo "Error: Domain URL is needed."; exit 1; }
 
@@ -14,20 +25,21 @@ NC='\033[0m'
 now=$(date +"%T")
 echo -e "\n * $now - Setting up $MYDOMAIN\n\n">1.log
 echo -e "\n * $now - Setting up $MYDOMAIN\n\n">2.log
-echo -e "\n $HC*$NC $now - Setting up $MYDOMAIN\n"
+echo -e "\n$HC***$NC $now - Setting up $MYDOMAIN\n"
 
 echo -e "\n$HC+$NC Installing certbot..."
 snap install core 2>> 2.log 1>> 1.log
 snap refresh core 2>> 2.log 1>> 1.log
 snap install --classic certbot 2>> 2.log 1>> 1.log
-ln -s /snap/bin/certbot /usr/bin/certbot || true 2>> 2.log 1>> 1.log
+ln -s /snap/bin/certbot /usr/bin/certbot 2>> 2.log 1>> 1.log || true
 
 echo -e "\n\n$HC+$NC Issuing SSL certificate..."
 certbot certonly --standalone -d $MYDOMAIN --register-unsafely-without-email --non-interactive --agree-tos 2>> 2.log 1>> 1.log
 
 
 echo -e "$HC+$NC --  INSTALLING xray and x-ui...\n"
-wget https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh --no-check-certificate && chmod +x install.sh 2>> 2.log 1>> 1.log
+wget https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh --no-check-certificate  2>> 2.log 1>> 1.log
+chmod +x install.sh 2>> 2.log 1>> 1.log
 
 echo "y
 $MYUSER
@@ -58,4 +70,5 @@ echo -e "Public Key:  /etc/letsencrypt/live/$MYDOMAIN/fullchain.pem\n" >> panel.
 echo -e "Private Key: /etc/letsencrypt/live/$MYDOMAIN/privkey.pem\n" >> panel.txt
 
 echo -e "\n \e[1;30;106m[\xE2\x9C\x94]$NC - \e[1m Proxy Config: $HC trojan://$TPASS@$MYDOMAIN:$MYPORT#$TNAME $NC\n\n \e[2m *** Good luck. *** $NC  \e[1;30;46m(⌐■_■)$NC \n\n"
+rm -f "$FLAGFILE"
 rm -f cookies.txt

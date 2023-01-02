@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-read -p "Enter your domain or subdomain: " MYDOMAIN
+read -e -p "Enter your domain or subdomain: " MYDOMAIN
 MYDOMAIN=$(echo "$MYDOMAIN" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
 [[ -z "$MYDOMAIN" ]] && { echo "Error: Domain URL is needed."; exit 1; }
 

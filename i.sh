@@ -1,5 +1,23 @@
 #!/bin/bash
 set -e
+HC='\033[1;32m'
+NC='\033[0m'
+echo ""
+read -e -p " [?] Enter your domain or subdomain: " MYDOMAIN
+MYDOMAIN=$(echo "$MYDOMAIN" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
+[[ -z "$MYDOMAIN" ]] && { echo "Error: Domain URL is needed."; exit 1; }
+
+echo -e "\n$HC+$NC Checking IP <=> Domain..."
+RESIP=$(dig +short "$MYDOMAIN" | grep '^[.0-9]*$' || echo 'NONE')
+SRVIP=$(curl -qs http://checkip.amazonaws.com  | grep '^[.0-9]*$' || echo 'NONE')
+
+if [ "$RESIP" = "$SRVIP" ]; then
+    echo -e "\n$HC+$NC $RESIP => $MYDOMAIN is valid."
+else
+    echo -e "\033[1;31m -- Error: \033[0m Server IP is $HC$SRVIP$NC but '$MYDOMAIN' resolves to \033[1;31m$RESIP$NC\n"
+    echo "If you have just updated the DNS record, wait a few minutes and then try again."
+fi
+
 FLAGFILE=running.flag
 echo ".">$FLAGFILE
 function cleanup {
@@ -10,18 +28,11 @@ function cleanup {
 }
 trap cleanup EXIT
 
-echo ""
-read -e -p " [?] Enter your domain or subdomain: " MYDOMAIN
-MYDOMAIN=$(echo "$MYDOMAIN" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
-[[ -z "$MYDOMAIN" ]] && { echo "Error: Domain URL is needed."; exit 1; }
-
 MYUSER=$(cat /dev/urandom | tr -dc '[:alpha:]' | fold -w ${1:-12} | head -n 1)
 MYPORT=$(shuf -i 2023-64999 -n1)
 MYPASS=$(cat /dev/urandom | tr -dc '[:alpha:]0-9' | fold -w ${1:-40} | head -n 1)
 TNAME=$(cat /dev/urandom | tr -dc '[:alpha:]0-9' | fold -w ${1:-12} | head -n 1)
 TPASS=$(cat /dev/urandom | tr -dc '[:alpha:]0-9' | fold -w ${1:-12} | head -n 1)
-HC='\033[1;32m'
-NC='\033[0m'
 now=$(date +"%T")
 echo -e "\n * $now - Setting up $MYDOMAIN\n\n">1.log
 echo -e "\n * $now - Setting up $MYDOMAIN\n\n">2.log

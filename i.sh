@@ -64,6 +64,7 @@ ufw status 2>> 2.log 1>> 1.log
 ufw default allow outgoing 2>> 2.log 1>> 1.log
 ufw default deny incoming 2>> 2.log 1>> 1.log
 ufw allow ssh 2>> 2.log 1>> 1.log
+ufw allow 80 2>> 2.log 1>> 1.log
 ufw allow 443 2>> 2.log 1>> 1.log
 ufw deny $MYPORT 2>> 2.log 1>> 1.log
 echo "y" | ufw enable 2>> 2.log 1>> 1.log

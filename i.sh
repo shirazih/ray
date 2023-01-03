@@ -16,6 +16,7 @@ if [ "$RESIP" = "$SRVIP" ]; then
 else
     echo -e "\033[1;31m -- Error: \033[0m Server IP is $HC$SRVIP$NC but '$MYDOMAIN' resolves to \033[1;31m$RESIP$NC\n"
     echo "If you have just updated the DNS record, wait a few minutes and then try again."
+    exit;
 fi
 
 FLAGFILE=running.flag

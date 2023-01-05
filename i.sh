@@ -34,7 +34,8 @@ MYPORT=$(shuf -i 2023-64999 -n1)
 MYPASS=$(cat /dev/urandom | tr -dc '[:alpha:]0-9' | fold -w ${1:-40} | head -n 1)
 TNAME=$(cat /dev/urandom | tr -dc '[:alpha:]0-9' | fold -w ${1:-12} | head -n 1)
 TPASS=$(cat /dev/urandom | tr -dc '[:alpha:]0-9' | fold -w ${1:-12} | head -n 1)
-now=$(date +"%T")
+TPORT=443
+NOW=$(date +"%T")
 
 HASXUI=$(which x-ui || echo "")
 if [ ! -z "$HASXUI" ]; then
@@ -44,9 +45,9 @@ if [ ! -z "$HASXUI" ]; then
     rm "$HASXUI" -f
 fi
 
-echo -e "\n * $now - Setting up $MYDOMAIN\n\n">1.log
-echo -e "\n * $now - Setting up $MYDOMAIN\n\n">2.log
-echo -e "\n$HC***$NC $now - Setting up $MYDOMAIN"
+echo -e "\n * $NOW - Setting up $MYDOMAIN\n\n">1.log
+echo -e "\n * $NOW - Setting up $MYDOMAIN\n\n">2.log
+echo -e "\n$HC***$NC $NOW - Setting up $MYDOMAIN"
 
 echo -e "\n$HC+$NC Installing certbot..."
 snap install core 2>> 2.log 1>> 1.log
@@ -89,10 +90,10 @@ curl --cookie cookies.txt "http://$MYDOMAIN:$MYPORT/xui/inbound/add" --data-raw 
 echo -e "PANEL: http://$MYDOMAIN:$MYPORT\n" > panel.txt
 echo -e "USER: $MYUSER\n" >> panel.txt
 echo -e "PASS: $MYPASS\n" >> panel.txt
-echo -e "Config: trojan://$TPASS@$MYDOMAIN:$MYPORT#$TNAME\n" >> panel.txt
+echo -e "Config: trojan://$TPASS@$MYDOMAIN:$TPORT#$TNAME\n" >> panel.txt
 echo -e "Public Key:  /etc/letsencrypt/live/$MYDOMAIN/fullchain.pem\n" >> panel.txt
 echo -e "Private Key: /etc/letsencrypt/live/$MYDOMAIN/privkey.pem\n" >> panel.txt
 
-echo -e "\n \e[1;30;106m[\xE2\x9C\x94]$NC - \e[1m Proxy Config: $HC trojan://$TPASS@$MYDOMAIN:$MYPORT#$TNAME $NC\n\n \e[2m *** Good luck. *** $NC  \e[1;30;46m(⌐■_■)$NC \n\n"
+echo -e "\n \e[1;30;106m[\xE2\x9C\x94]$NC - \e[1m Proxy Config: $HC trojan://$TPASS@$MYDOMAIN:$TPORT#$TNAME $NC\n\n \e[2m *** Good luck. *** $NC  \e[1;30;46m(⌐■_■)$NC \n\n"
 rm -f "$FLAGFILE"
 rm -f cookies.txt
